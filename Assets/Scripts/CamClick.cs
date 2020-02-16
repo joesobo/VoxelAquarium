@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Random = UnityEngine.Random;
 
 public class CamClick : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class CamClick : MonoBehaviour
     private GameObject ghostObject;
     public Material ghostMat;
     public GameObject parentObject;
+    private Vector3 offset = new Vector3(0, 3f, 0);
 
     private void Start()
     {
@@ -58,14 +60,13 @@ public class CamClick : MonoBehaviour
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
-        Vector3 offset = new Vector3(0, 0.5f, 0);
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, terrainMask))
         {
             if (ghostObject == null)
             {
                 ghostObject = Instantiate(active);
-                ghostObject.GetComponent<MeshRenderer>().material = ghostMat;
+                ghostObject.GetComponentInChildren<MeshRenderer>().material = ghostMat;
                 ghostObject.transform.parent = parentObject.transform;
                 ghostObject.name = "Ghost Object";
             }
@@ -82,13 +83,13 @@ public class CamClick : MonoBehaviour
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
-        Vector3 offset = new Vector3(0, 0.5f, 0);
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, terrainMask))
         {
-            GameObject go = Instantiate(active);
+            GameObject go = Instantiate(active, hit.point + offset, Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)));
+            float size = Random.Range(0.5f, 1.2f);
+            go.transform.localScale = Vector3.one * size;
 
-            go.transform.position = hit.point + offset;
             go.transform.parent = parentObject.transform;
         }
     }
