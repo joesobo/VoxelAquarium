@@ -34,21 +34,22 @@ public class CamClick : MonoBehaviour
             DestroyGhost();
         }
 
-        //spawn and move ghost objects
+
         if (active != null)
         {
+            //spawn and move ghost objects
             if (!EventSystem.current.IsPointerOverGameObject())
             {
                 GhostObject(active);
             }
-        }
 
-        //left click to spawn objects
-        if (Input.GetMouseButtonDown(0))
-        {
-            if (!EventSystem.current.IsPointerOverGameObject())
+            //left click to spawn objects
+            if (Input.GetMouseButtonDown(0))
             {
-                InteractAtPoint(active);
+                if (!EventSystem.current.IsPointerOverGameObject())
+                {
+                    InteractAtPoint(active);
+                }
             }
         }
     }
@@ -70,7 +71,9 @@ public class CamClick : MonoBehaviour
             }
 
             ghostObject.transform.position = hit.point + offset;
-        }else{
+        }
+        else
+        {
             DestroyGhost();
         }
     }
