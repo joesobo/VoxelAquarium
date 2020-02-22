@@ -14,7 +14,9 @@ public class CamClick : MonoBehaviour
     private GameObject active;
     //[SerializeField]
     private GameObject ghostObject;
-    public Material ghostMat;
+    private MeshRenderer ghostRenderer;
+    public Material validMat;
+    public Material invalidMat;
     public GameObject parentObject;
     private Vector3 offset = new Vector3(0, 3f, 0);
 
@@ -66,9 +68,20 @@ public class CamClick : MonoBehaviour
             if (ghostObject == null)
             {
                 ghostObject = Instantiate(active);
-                ghostObject.GetComponentInChildren<MeshRenderer>().material = ghostMat;
                 ghostObject.transform.parent = parentObject.transform;
                 ghostObject.name = "Ghost Object";
+                ghostRenderer = ghostObject.GetComponentInChildren<MeshRenderer>();
+            }
+            else
+            {
+                if (hit.normal == hit.transform.up)
+                {
+                    ghostRenderer.material = validMat;
+                }
+                else
+                {
+                    ghostRenderer.material = invalidMat;
+                }
             }
 
             ghostObject.transform.position = hit.point + offset;
@@ -86,11 +99,14 @@ public class CamClick : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, terrainMask))
         {
-            GameObject go = Instantiate(active, hit.point + offset, Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)));
-            float size = Random.Range(0.5f, 1.2f);
-            go.transform.localScale = Vector3.one * size;
+            if (hit.normal == hit.transform.up)
+            {
+                GameObject go = Instantiate(active, hit.point + offset, Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)));
+                float size = Random.Range(0.5f, 1.2f);
+                go.transform.localScale = Vector3.one * size;
 
-            go.transform.parent = parentObject.transform;
+                go.transform.parent = parentObject.transform;
+            }
         }
     }
 
@@ -98,6 +114,7 @@ public class CamClick : MonoBehaviour
     {
         if (ghostObject != null)
         {
+            ghostRenderer = null;
             Destroy(ghostObject);
             ghostObject = null;
         }
