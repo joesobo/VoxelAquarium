@@ -10,9 +10,7 @@ public class CamClick : MonoBehaviour
     public LayerMask terrainMask;
 
     public GameObject testPrefab;
-    //[SerializeField]
-    private GameObject active;
-    //[SerializeField]
+
     private GameObject ghostObject;
     private MeshRenderer ghostRenderer;
     public Material validMat;
@@ -20,9 +18,13 @@ public class CamClick : MonoBehaviour
     public GameObject parentObject;
     private Vector3 offset = new Vector3(0, 3f, 0);
 
+    private Spawnable active;
+    private Spawnable spawnable;
+
     private void Start()
     {
         active = null;
+        spawnable = new Spawnable(testPrefab, 0.5f, 1.2f, Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)), true);
     }
 
     private void Update()
@@ -30,7 +32,7 @@ public class CamClick : MonoBehaviour
         //press 1 to set active, 0 to reset TEMP
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            active = testPrefab;
+            active = spawnable;
         }
         if (Input.GetKeyDown(KeyCode.Alpha0))
         {
@@ -38,13 +40,12 @@ public class CamClick : MonoBehaviour
             DestroyGhost();
         }
 
-
         if (active != null)
         {
             //spawn and move ghost objects
             if (!EventSystem.current.IsPointerOverGameObject())
             {
-                GhostObject(active);
+                GhostObject();
             }
 
             //left click to spawn objects
@@ -52,13 +53,13 @@ public class CamClick : MonoBehaviour
             {
                 if (!EventSystem.current.IsPointerOverGameObject())
                 {
-                    InteractAtPoint(active);
+                    InteractAtPoint();
                 }
             }
         }
     }
 
-    private void GhostObject(GameObject active)
+    private void GhostObject()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -67,14 +68,14 @@ public class CamClick : MonoBehaviour
         {
             if (ghostObject == null)
             {
-                ghostObject = Instantiate(active);
+                ghostObject = Instantiate(active.getPrefab());
                 ghostObject.transform.parent = parentObject.transform;
                 ghostObject.name = "Ghost Object";
                 ghostRenderer = ghostObject.GetComponentInChildren<MeshRenderer>();
             }
             else
             {
-                if (hit.normal == hit.transform.up)
+                if (ValidLocation(hit))
                 {
                     ghostRenderer.material = validMat;
                 }
@@ -92,18 +93,29 @@ public class CamClick : MonoBehaviour
         }
     }
 
-    private void InteractAtPoint(GameObject active)
+    private bool ValidLocation(RaycastHit hit)
+    {
+        if ((hit.normal == hit.transform.up && active.getTopValidSpawn()) || (hit.normal != hit.transform.up && !active.getTopValidSpawn()))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private void InteractAtPoint()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, terrainMask))
         {
-            if (hit.normal == hit.transform.up)
+            if (ValidLocation(hit))
             {
-                GameObject go = Instantiate(active, hit.point + offset, Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)));
-                float size = Random.Range(0.5f, 1.2f);
-                go.transform.localScale = Vector3.one * size;
+                GameObject go = Instantiate(active.getPrefab(), hit.point + offset, spawnable.getRotation());
+                go.transform.localScale = Vector3.one * spawnable.getSize();
 
                 go.transform.parent = parentObject.transform;
             }
