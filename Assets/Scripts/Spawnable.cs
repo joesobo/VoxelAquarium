@@ -8,13 +8,15 @@ public class Spawnable
     private float maxSize;
     private Quaternion rotation;
     private bool topValidSpawn;
+    private Vector3 offset;
 
-    public Spawnable(GameObject prefab, float minSize, float maxSize, Quaternion rotation, bool topValidSpawn){
+    public Spawnable(GameObject prefab, float minSize, float maxSize, Quaternion rotation, bool topValidSpawn, Vector3 offset){
         this.prefab = prefab;
         this.minSize = minSize;
         this.maxSize = maxSize;
         this.rotation = rotation;
         this.topValidSpawn = topValidSpawn;
+        this.offset = offset;
     }
 
     public GameObject getPrefab(){
@@ -31,5 +33,9 @@ public class Spawnable
 
     public bool getTopValidSpawn(){
         return topValidSpawn;
+    }
+
+    public Vector3 getOffset(){
+        return offset;
     }
 }

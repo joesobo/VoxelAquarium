@@ -16,7 +16,6 @@ public class CamClick : MonoBehaviour
     public Material validMat;
     public Material invalidMat;
     public GameObject parentObject;
-    private Vector3 offset = new Vector3(0, 3f, 0);
 
     private Spawnable active;
     private Spawnable spawnable;
@@ -24,7 +23,7 @@ public class CamClick : MonoBehaviour
     private void Start()
     {
         active = null;
-        spawnable = new Spawnable(testPrefab, 0.5f, 1.2f, Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)), true);
+        spawnable = new Spawnable(testPrefab, 0.5f, 1.2f, Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)), true, new Vector3(0, 3, 0));
     }
 
     private void Update()
@@ -85,7 +84,7 @@ public class CamClick : MonoBehaviour
                 }
             }
 
-            ghostObject.transform.position = hit.point + offset;
+            ghostObject.transform.position = hit.point + active.getOffset();
         }
         else
         {
@@ -114,7 +113,7 @@ public class CamClick : MonoBehaviour
         {
             if (ValidLocation(hit))
             {
-                GameObject go = Instantiate(active.getPrefab(), hit.point + offset, spawnable.getRotation());
+                GameObject go = Instantiate(active.getPrefab(), hit.point + active.getOffset(), spawnable.getRotation());
                 go.transform.localScale = Vector3.one * spawnable.getSize();
 
                 go.transform.parent = parentObject.transform;
